@@ -9,7 +9,7 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem mnemonicParsing="false" text="Import data" />
+            <MenuItem fx:id="fileOpenMenuButton" mnemonicParsing="false" onAction="#openFile" text="Import data" />
             <MenuItem mnemonicParsing="false" text="Export data" />
             <MenuItem mnemonicParsing="false" text="Quit" />
           </items>
