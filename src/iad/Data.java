@@ -1,6 +1,7 @@
 package iad;
 
-import javax.xml.crypto.dom.DOMCryptoContext;
+import com.sun.source.tree.Tree;
+
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -9,15 +10,26 @@ import java.util.logging.Logger;
 public class Data {
     private File file;
     private String separator;
-    public HashMap<ArrayList<ArrayList<Double>>, String> data;
-    public SortedSet<String> classTypes;
+    private HashMap<String,ArrayList<ArrayList<Double>>> data;
+    private TreeSet<String> classTypes;
     public int numberOfAttribute;
+
+    public HashMap<String,ArrayList<ArrayList<Double>>> getData() {
+        return data;
+    }
+
+    public TreeSet<String> getClassTypes() {
+        TreeSet cloned_set = (TreeSet)classTypes.clone();
+        return cloned_set;
+    }
 
     public Data(File file, String separator) {
         this.file = file;
         this.separator = separator;
         getClassType();
         getDataOfFile();
+       // System.out.println(getDataOfColumns("Iris-setosa"));
+        //arithmeticAverage("Iris-setosa");
     }
 
     private void getClassType() {
@@ -45,9 +57,9 @@ public class Data {
         data = new HashMap<>();
         for(String obj : classTypes)
         {
-                data.put(getDataOfColumns(obj), obj.toString());
+                data.put(obj.toString(),getDataOfColumns(obj));
         }
-        //System.out.println("Dane wczytane poprawnie!");
+        System.out.println("Dane wczytane poprawnie!");
     }
 
 
@@ -81,4 +93,20 @@ public class Data {
         }
         return columnsData;
     }
+
+    /*private void arithmeticAverage(String classType) {
+
+        ArrayList<ArrayList<Double>> columnsData = getDataOfColumns(classType);
+        double tab[] = new double[columnsData.size()];
+        System.out.println(tab.length);
+         for(int i=0;i<columnsData.size();i++) {
+             for(int j=0;j<columnsData.get(i).size();j++) {
+                 tab[i] += columnsData.get(i).get(j);
+             }
+             tab[i] /= Math.round(columnsData.get(i).size()*1000.0)/1000.0;
+         }
+
+        System.out.println("Srednia = " + tab[0]);
+        //System.out.println("ilosc lini: " + number);
+    }*/
 }

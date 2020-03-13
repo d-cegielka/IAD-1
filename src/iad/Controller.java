@@ -10,7 +10,8 @@ import javafx.stage.Stage;
 import java.io.File;
 
 public class Controller {
-    private Data data;
+    private Data analyzedData;
+    private Calculations calcs;
 
     @FXML
     private ChoiceBox<String> choiceSeparator;
@@ -26,8 +27,16 @@ public class Controller {
     public void openFile(){
         final FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import data");
-        File file = fileChooser.showOpenDialog(new Stage());
-        data = new Data(file,choiceSeparator.getValue());
+        /*File file = fileChooser.showOpenDialog(new Stage());*/
+        String path = "C:\\IAD\\data.txt";
+        File file = new File(path);
+        analyzedData = new Data(file,choiceSeparator.getValue());
+        calcs = new Calculations(analyzedData.getData(), analyzedData.getClassTypes());
+    }
+
+    @FXML
+    public void analyseData(){
+
     }
 
 
