@@ -16,11 +16,13 @@ public class Calculations {
             //String temp2 = this.data.get(obj);
             ArrayList<Double> temp2 = temp.get(0);
 //            System.out.println(quartile(2,temp2));
-            System.out.println(standardDeviation(temp2));
+            //System.out.println(round(kurtosis(temp2),4));
+            System.out.println(dataNormalization(temp2));
         }
 
     }
 
+    //średnia arytmetyczna
     private double arithmeticAverage(ArrayList<Double> inputData){
         double sum = 0;
         double average;
@@ -29,15 +31,16 @@ public class Calculations {
         for (double num : inputData)
             sum += num;
 
-        average = Math.round(sum / inputData.size()*1000.0)/1000.0;
-
+        average = sum / inputData.size();
         return average;
     }
 
+    //kwartyle
     private double quartile(int quartileIndex, ArrayList<Double> inputData){
         return inputData.get((int) Math.round((inputData.size() * (quartileIndex * 0.25))));
     }
 
+    //moment centraly
     private double centralMoment(int power, ArrayList<Double> inputData) {
         double average = arithmeticAverage(inputData);
         double sum = 0;
@@ -45,12 +48,55 @@ public class Calculations {
             double sub = num - average;
             sum += Math.pow(sub, power);
         }
-        return Math.round(sum/inputData.size()*10000d)/10000d;
+        return sum/inputData.size();
     }
 
+    //odchylenie standardowe
     private double standardDeviation(ArrayList<Double> inputData) {
-        double standardDeviation = Math.sqrt(centralMoment(2,inputData));
-        return Math.round(standardDeviation*10000d)/10000d;
-        //TODO zwracać pełną wartość w funkcjach, przy wypisywaniu zaokrąglić.
+        return Math.sqrt(centralMoment(2,inputData));
+    }
+
+    //współczynnik skośności
+    private double skewness(ArrayList<Double> inputData) {
+        return (arithmeticAverage(inputData) - quartile(2,inputData)) / standardDeviation(inputData);
+    }
+
+    //współczynnik asymetrii
+    private double skewnessCoefficient(ArrayList<Double> inputData){
+        return centralMoment(3,inputData) / standardDeviation(inputData);
+    }
+
+    //współczynnik kurtozy
+    private double kurtosis(ArrayList<Double> inputData) {
+        return centralMoment(4,inputData) / Math.pow(standardDeviation(inputData),4);
+    }
+
+    private SortedMap<Double, Long> counterOfDuplicate(ArrayList<Double> inputData) {
+        SortedMap<Double, Long> resultMap = new TreeMap<>();
+        for(Double obj : inputData) {
+            if(resultMap.containsKey(obj)) {
+                resultMap.put(obj,resultMap.get(obj) + 1L);
+            } else {
+                resultMap.put(obj,1L);
+            }
+        }
+        return resultMap;
+    }
+
+    private SortedMap<Double, Long> dataNormalization(ArrayList<Double> inputData) {
+        SortedMap<Double, Long> dataBeforeNormalization = counterOfDuplicate(inputData);
+        SortedMap<Double, Long> dataAfterNormalization = new TreeMap<>();
+
+        for (double key : dataBeforeNormalization.keySet()) {
+            double value;
+            value = (key - arithmeticAverage(inputData)) / standardDeviation(inputData);
+            dataAfterNormalization.put(round(value,3),dataBeforeNormalization.get(key));
+        }
+        return dataAfterNormalization;
+    }
+
+    private double round(double value, int decimalPlaces) {
+        double pow = Math.pow(10.0, decimalPlaces);
+        return Math.round(value * pow) / pow;
     }
 }
