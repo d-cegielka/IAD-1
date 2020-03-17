@@ -1,11 +1,12 @@
 package iad;
 
+import iad.Calculations;
+import iad.Data;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
 

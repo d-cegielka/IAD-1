@@ -3,7 +3,6 @@ package iad;
 import java.io.File;
 import java.util.*;
 import org.apache.commons.math3.special.Erf;
-import org.apache.commons.math3.stat.inference.TTest;
 
 public class Calculations {
     private TreeSet<String> classType;
