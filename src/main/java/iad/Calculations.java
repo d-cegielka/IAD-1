@@ -7,12 +7,13 @@ import org.apache.commons.math3.special.Erf;
 public class Calculations {
     private TreeSet<String> classType;
     private HashMap<String,ArrayList<ArrayList<Double>>> data;
+
     public Calculations(HashMap<String,ArrayList<ArrayList<Double>>> data, TreeSet<String> classTypes) {
         this.classType = classTypes;
         this.data = data;
-        ArrayList<ArrayList<Double>> temp0 = this.data.get("Iris-setosa");
+        /*ArrayList<ArrayList<Double>> temp0 = this.data.get("Iris-setosa");
         ArrayList<ArrayList<Double>> temp1 = this.data.get("Iris-virginica");
-        System.out.println(hypothesisTesting(temp0.get(1),temp1.get(1),0.05));
+        System.out.println(hypothesisTesting(temp0.get(1),temp1.get(1),0.05));*/
         /*for(String obj : classTypes)
         {
             ArrayList<ArrayList<Double>> temp = this.data.get(obj);
@@ -26,6 +27,49 @@ public class Calculations {
 
         }*/
 
+    }
+
+    public StringBuilder analyseData(double alpha, int col, String classC1, String classC2)
+    {
+        StringBuilder report = new StringBuilder();
+        report.append("Analizowa kolumna danych: ").append(col).append(System.lineSeparator()).append(System.lineSeparator());
+        for(String obj : classType)
+        {
+            ArrayList<ArrayList<Double>> classData = data.get(obj);
+            ArrayList<Double> columnData = classData.get(col);
+
+            report.append("Wyniki dla klasy: ").append(obj).append(System.lineSeparator());
+            report.append("1. Miary średnie klasyczne i pozycyjne:").append(System.lineSeparator());
+            report.append("Średnia arytmetyczna: ").append(round(arithmeticAverage(columnData),3)).append(System.lineSeparator());
+            report.append("Pierwszy kwartyl: ").append(round(quartile(1,columnData),3)).append(System.lineSeparator());
+            report.append("Mediana: ").append(round(quartile(2,columnData),3)).append(System.lineSeparator());
+            report.append("Trzeci kwartyl: ").append(round(quartile(1,columnData),3)).append(System.lineSeparator());
+
+            report.append("2. Miary rozproszenia: ").append(System.lineSeparator());
+            report.append("Wariancja: ").append(round(centralMoment(2, columnData),3)).append(System.lineSeparator());
+            report.append("Odchylenie standardowe: ").append(round(standardDeviation(columnData),3)).append(System.lineSeparator());
+
+            report.append("3. Miary asymetrii:").append(System.lineSeparator());
+            report.append("Współczynnik skośności: ").append(round(skewness(columnData),3)).append(System.lineSeparator());
+            report.append("Współczynnik asymetrii: ").append(round(skewnessCoefficient(columnData),3)).append(System.lineSeparator());
+
+            report.append("4. Miary koncentracji:").append(System.lineSeparator());
+            report.append("Współczynnik koncentracji(kurtoza): ").append(round(kurtosis(columnData),3)).append(System.lineSeparator());
+
+            report.append("5. Normalizacja zmiennej losowej. Dopasowanie rozkładu i analiza danych w jego kontekście:").append(System.lineSeparator());
+            report.append("Dane przed normalizacją:").append(System.lineSeparator());
+            report.append(columnData).append(System.lineSeparator());
+            report.append(counterOfDuplicate(columnData)).append(System.lineSeparator()).append(System.lineSeparator());
+            report.append("Dane po normalizacji:").append(System.lineSeparator());
+            report.append(dataNormalization(columnData)).append(System.lineSeparator()).append(System.lineSeparator());
+
+            report.append(System.lineSeparator());
+        }
+        ArrayList<String> listClassType = new ArrayList<String>(classType);
+        ArrayList<ArrayList<Double>> hiptestData1 = this.data.get(classC1);
+        ArrayList<ArrayList<Double>> hiptestData2 = this.data.get(classC2);
+        report.append(hypothesisTesting(hiptestData1.get(col),hiptestData2.get(col),alpha));
+        return report;
     }
 
     //średnia arytmetyczna
@@ -129,7 +173,7 @@ public class Calculations {
                 / ((Math.pow(val1, 2) / (x1.size() - 1))
                 + (Math.pow(val2, 2) / (x2.size() - 1)));
 
-        double p = 1 + Erf.erf(-z / Math.sqrt(2));
+        double p = 1 - Math.abs(Erf.erf(-z / Math.sqrt(2)));
        /* TTest test = new TTest();
         double[] x1arr = x1.stream().mapToDouble(Double::doubleValue).toArray();
         double[] x2arr = x2.stream().mapToDouble(Double::doubleValue).toArray();
@@ -146,4 +190,6 @@ public class Calculations {
 
         return result;
     }
+
+
 }

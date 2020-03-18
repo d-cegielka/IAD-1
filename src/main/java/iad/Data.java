@@ -12,7 +12,15 @@ public class Data {
     private String separator;
     private HashMap<String,ArrayList<ArrayList<Double>>> data;
     private TreeSet<String> classTypes;
-    public int numberOfAttribute;
+    private int numberOfAttribute;
+
+    public String getSeparator() {
+        return separator;
+    }
+
+    public int getNumberOfAttribute() {
+        return numberOfAttribute;
+    }
 
     public HashMap<String,ArrayList<ArrayList<Double>>> getData() {
         return data;
@@ -59,7 +67,7 @@ public class Data {
         {
                 data.put(obj.toString(),getDataOfColumns(obj));
         }
-        System.out.println("Dane wczytane poprawnie!");
+        //System.out.println("Dane wczytane poprawnie!");
     }
 
 
