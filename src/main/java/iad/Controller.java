@@ -5,12 +5,17 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.chart.BarChart;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -48,9 +53,9 @@ public class Controller {
         fileChooser.setTitle("Wczytaj dane");
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Pliki tekstowe (*.txt, *.csv)", "*.txt", "*.csv");
         fileChooser.getExtensionFilters().add(extFilter);
-        /*String path = "C:\\IAD\\224546.txt";
-        inputFile = new File(path);*/
-        inputFile = fileChooser.showOpenDialog(new Stage());
+        String path = "C:\\IAD\\data.txt";
+        inputFile = new File(path);
+        //inputFile = fileChooser.showOpenDialog(new Stage());
 
         //detekcja separatora
         CsvParserSettings settings = new CsvParserSettings();
@@ -117,6 +122,38 @@ public class Controller {
         } catch (IOException ex) {
             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @FXML
+    public void drawHistogram()
+    {
+        Stage histogramStage = new Stage();
+        histogramStage.setTitle("Histogram");
+        Charts chart = new Charts(calcs,analyzedData);
+        Scene histogramScene = new Scene(chart.drawChart(choiceColumn.getValue()));
+        histogramStage.setScene(histogramScene);
+        histogramStage.show();
+    }
+
+    @FXML
+    public void drawGroupedHistogram()
+    {
+        Stage histogramStage = new Stage();
+        histogramStage.setTitle("Histogram");
+        Charts chart = new Charts(calcs,analyzedData);
+        BarChart<String,Number> bc = chart.drawGroupedChart(choiceColumn.getValue());
+        WritableImage histogramImage = bc.snapshot(new SnapshotParameters(),null);
+        try{
+            File file = new File("GroupedChart.png");
+            Scene histogramScene = new Scene(bc);
+            ImageIO.write( SwingFXUtils)
+        }catch (){
+
+        }
+
+
+        histogramStage.setScene(histogramScene);
+        histogramStage.show();
     }
 
 
