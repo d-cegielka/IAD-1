@@ -33,7 +33,13 @@
             <Label layoutX="80.0" layoutY="87.0" text="Testowanie hipotez" />
             <ChoiceBox fx:id="choiceC1" disable="true" layoutX="73.0" layoutY="113.0" prefWidth="150.0" />
             <Label layoutX="15.0" layoutY="149.0" text="Klasa C2" />
+            <Button fx:id="histogramButton" alignment="TOP_LEFT" layoutX="112.0" layoutY="241.0" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#drawHistogram" text="Histogram">
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+            </Button>
             <ChoiceBox fx:id="choiceC2" disable="true" layoutX="73.0" layoutY="145.0" prefWidth="150.0" />
+            <Button fx:id="groupDataButton" layoutX="69.0" layoutY="280.0" mnemonicParsing="false" onAction="#drawGroupedHistogram" text="Histogram z grupowaniem" />
          </children>
     </AnchorPane>
   </children>

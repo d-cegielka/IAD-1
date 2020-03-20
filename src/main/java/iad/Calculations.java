@@ -59,7 +59,7 @@ public class Calculations {
 
             report.append("5. Normalizacja zmiennej losowej. Dopasowanie rozkładu i analiza danych w jego kontekście:").append(System.lineSeparator());
             report.append("Dane przed normalizacją:").append(System.lineSeparator());
-            report.append(columnData).append(System.lineSeparator());
+            report.append(columnData).append(System.lineSeparator()).append(System.lineSeparator());
             report.append(counterOfDuplicate(columnData)).append(System.lineSeparator()).append(System.lineSeparator());
             report.append("Dane po normalizacji:").append(System.lineSeparator());
             report.append(dataNormalization(columnData)).append(System.lineSeparator()).append(System.lineSeparator());
@@ -136,7 +136,7 @@ public class Calculations {
         return centralMoment(4,inputData) / Math.pow(standardDeviation(inputData),4);
     }
 
-    private SortedMap<Double, Long> counterOfDuplicate(ArrayList<Double> inputData) {
+    protected SortedMap<Double, Long> counterOfDuplicate(ArrayList<Double> inputData) {
         SortedMap<Double, Long> resultMap = new TreeMap<>();
         for(Double obj : inputData) {
             if(resultMap.containsKey(obj)) {
@@ -160,7 +160,7 @@ public class Calculations {
         return dataAfterNormalization;
     }
 
-    private double round(double value, int decimalPlaces) {
+    double round(double value, int decimalPlaces) {
         double pow = Math.pow(10.0, decimalPlaces);
         return Math.round(value * pow) / pow;
     }
