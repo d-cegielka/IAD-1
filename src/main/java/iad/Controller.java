@@ -1,7 +1,9 @@
 package iad;
 
+import com.univocity.parsers.csv.CsvFormat;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
@@ -12,10 +14,8 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.univocity.parsers.csv.*;
 
 public class Controller {
     private Data analyzedData;
@@ -48,10 +48,10 @@ public class Controller {
         fileChooser.setTitle("Wczytaj dane");
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Pliki tekstowe (*.txt, *.csv)", "*.txt", "*.csv");
         fileChooser.getExtensionFilters().add(extFilter);
-        //File file = fileChooser.showOpenDialog(new Stage());
-        //String path = "C:\\IAD\\data.csv";
-        //inputFile = new File(file);
+        /*String path = "C:\\IAD\\224546.txt";
+        inputFile = new File(path);*/
         inputFile = fileChooser.showOpenDialog(new Stage());
+
         //detekcja separatora
         CsvParserSettings settings = new CsvParserSettings();
         settings.detectFormatAutomatically();

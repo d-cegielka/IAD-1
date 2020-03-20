@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 import org.apache.commons.math3.special.Erf;
 
+
 public class Calculations {
     private TreeSet<String> classType;
     private HashMap<String,ArrayList<ArrayList<Double>>> data;
@@ -43,7 +44,7 @@ public class Calculations {
             report.append("Średnia arytmetyczna: ").append(round(arithmeticAverage(columnData),3)).append(System.lineSeparator());
             report.append("Pierwszy kwartyl: ").append(round(quartile(1,columnData),3)).append(System.lineSeparator());
             report.append("Mediana: ").append(round(quartile(2,columnData),3)).append(System.lineSeparator());
-            report.append("Trzeci kwartyl: ").append(round(quartile(1,columnData),3)).append(System.lineSeparator());
+            report.append("Trzeci kwartyl: ").append(round(quartile(3,columnData),3)).append(System.lineSeparator());
 
             report.append("2. Miary rozproszenia: ").append(System.lineSeparator());
             report.append("Wariancja: ").append(round(centralMoment(2, columnData),3)).append(System.lineSeparator());
@@ -87,7 +88,21 @@ public class Calculations {
 
     //kwartyle
     private double quartile(int quartileIndex, ArrayList<Double> inputData){
-        return inputData.get((int) Math.round((inputData.size() * (quartileIndex * 0.25))));
+        int numerator = quartileIndex * (inputData.size() - 1);
+        int quotient = (int) Math.floor(numerator * 0.25);
+        int isOdd = numerator - (quotient * 4);
+        if (isOdd == 0) {
+            return inputData.get(quotient);
+        } else {
+            return (inputData.get(quotient) + inputData.get(quotient + 1)) * 0.5;
+        }
+
+        /*double base = inputData.size() * (quartileIndex * 0.25);
+        double baseround = Math.floor(base);
+        int position = (int) baseround;
+        //return inputData.get(position);
+        //return inputData.get((int) Math.round((inputData.size() * (quartileIndex * 0.25))));*/
+       //return Quantiles.quartiles().index(quartileIndex).compute(inputData);
     }
 
     //moment centraly
@@ -106,14 +121,14 @@ public class Calculations {
         return Math.sqrt(centralMoment(2,inputData));
     }
 
-    //współczynnik skośności
+    //współczynnik skośności(“Klasyczno-pozycyjny” współczynnik skośności (miara absolutna))
     private double skewness(ArrayList<Double> inputData) {
-        return (arithmeticAverage(inputData) - quartile(2,inputData)) / standardDeviation(inputData);
+        return 3*((arithmeticAverage(inputData) - quartile(2,inputData)) / standardDeviation(inputData));
     }
 
-    //współczynnik asymetrii
+    //współczynnik asymetrii (Klasyczny współczynnik asymetrii)
     private double skewnessCoefficient(ArrayList<Double> inputData){
-        return centralMoment(3,inputData) / standardDeviation(inputData);
+        return centralMoment(3, inputData) / Math.pow(standardDeviation(inputData), 3);
     }
 
     /* współczynnik kurtozy */
