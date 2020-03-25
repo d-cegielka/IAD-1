@@ -3,28 +3,24 @@ package iad;
 import com.univocity.parsers.csv.CsvFormat;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import com.google.common.io.Files;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.BarChart;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Controller {
-    private Data analyzedData;
-    private Calculations calcs;
+    private Charts analyzedData;
     private StringBuilder report;
     private File inputFile;
 
@@ -44,8 +40,7 @@ public class Controller {
     private ChoiceBox<String> choiceC2;
 
     @FXML
-    private void initialize() {
-    }
+    private void initialize() { }
 
     @FXML
     public void openFile(){
@@ -53,9 +48,9 @@ public class Controller {
         fileChooser.setTitle("Wczytaj dane");
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Pliki tekstowe (*.txt, *.csv)", "*.txt", "*.csv");
         fileChooser.getExtensionFilters().add(extFilter);
-        String path = "C:\\IAD\\data.txt";
-        inputFile = new File(path);
-        //inputFile = fileChooser.showOpenDialog(new Stage());
+        /*String path = "C:\\IAD\\224546.txt";
+        inputFile = new File(path);*/
+        inputFile = fileChooser.showOpenDialog(new Stage());
 
         //detekcja separatora
         CsvParserSettings settings = new CsvParserSettings();
@@ -65,8 +60,12 @@ public class Controller {
         parser.parse(inputFile);
         CsvFormat separatorDetected = parser.getDetectedFormat();
 
-        analyzedData = new Data(inputFile,separatorDetected.getDelimiterString());
-        calcs = new Calculations(analyzedData.getData(), analyzedData.getClassTypes());
+        try {
+            analyzedData = new Charts(inputFile, separatorDetected.getDelimiterString());
+        } catch (IOException e) {
+            alertHandling(e.getMessage());
+        }
+        //calcs = new Calculations(analyzedData.getData(), analyzedData.getClassTypes());
 
         //Wybór kolumny do analizy
         for (int i = 0; i < analyzedData.getNumberOfAttribute() - 1; i++)
@@ -86,30 +85,40 @@ public class Controller {
 
     @FXML
     public void analyseData(){
-        report = new StringBuilder();
-        if(alphaValue.getText().isEmpty()) alphaValue.setText(alphaValue.getPromptText());
-        report.append("Plik źródłowy: ").append(inputFile.getName()).append(System.lineSeparator());
-        report.append("Separator: [").append(analyzedData.getSeparator()).append("]").append(System.lineSeparator());
-        report.append("Analizowane klasy: ").append(analyzedData.getClassTypes()).append(System.lineSeparator());
-        report.append(calcs.analyseData(Double.parseDouble(alphaValue.getText()), choiceColumn.getValue(), choiceC1.getValue(), choiceC2.getValue()));
-        reportArea.setText(report.toString());
+        try {
+            if (analyzedData == null) {
+                throw new RuntimeException("Nie wczytano pliku z danymi!");
+            }
+            report = new StringBuilder();
+            if (alphaValue.getText().isEmpty()) alphaValue.setText(alphaValue.getPromptText());
+            report.append("Plik źródłowy: ").append(inputFile.getName()).append(System.lineSeparator());
+            report.append("Separator: [").append(analyzedData.getSeparator()).append("]").append(System.lineSeparator());
+            report.append("Analizowane klasy: ").append(analyzedData.getClassTypes()).append(System.lineSeparator());
+            report.append(analyzedData.analyseData(Double.parseDouble(alphaValue.getText()), choiceColumn.getValue(), choiceC1.getValue(), choiceC2.getValue()));
+            reportArea.setText(report.toString());
+        } catch (RuntimeException e) {
+            alertHandling(e.getMessage());
+        }
     }
 
     @FXML
     public void saveDataToFile(){
-        if(reportArea.getText().isEmpty()) analyseData();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Zapisz dane");
+        try {
+            if (reportArea.getText().isEmpty())
+                throw new RuntimeException("Brak danych do zapisu!");
 
-        //Set extension filter for text files
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Pliki tekstowe (*.txt)", "*.txt");
-        fileChooser.getExtensionFilters().add(extFilter);
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Zapisz dane");
 
-        //Show save file dialog
-        File file = fileChooser.showSaveDialog(new Stage());
+            //Set extension filter for text files
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Pliki tekstowe (*.txt)", "*.txt");
+            fileChooser.getExtensionFilters().add(extFilter);
 
-        if (file != null) {
+            //Show save file dialog
+            File file = fileChooser.showSaveDialog(new Stage());
             saveTextToFile(report.toString(), file);
+        } catch (RuntimeException e) {
+            alertHandling(e.getMessage());
         }
     }
 
@@ -120,17 +129,35 @@ public class Controller {
             writer.println(content);
             writer.close();
         } catch (IOException ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+            alertHandling(ex.getMessage());
         }
     }
 
     @FXML
     public void drawHistogram()
     {
-        Stage histogramStage = new Stage();
+        try{
+            if (analyzedData == null) {
+                throw new RuntimeException("Nie wczytano pliku z danymi!");
+            }
+            BarChart<String,Number> bc = analyzedData.drawChart(choiceColumn.getValue());
+            Stage histogramStage = new Stage();
+            //new File(".\\images_chart\\").mkdirs();
+            drawBase(bc, histogramStage, ".\\images_chart\\chart_");
+        } catch (IOException e){
+            alertHandling(e.getMessage());
+        }
+    }
+
+    private void drawBase(BarChart<String, Number> bc, Stage histogramStage, String s) throws IOException {
+        String nameData = Files.getNameWithoutExtension(inputFile.getName());
         histogramStage.setTitle("Histogram");
-        Charts chart = new Charts(calcs,analyzedData);
-        Scene histogramScene = new Scene(chart.drawChart(choiceColumn.getValue()));
+        bc.setTitle("Histogram dla zestawu danych: "+nameData);
+        File imageFile = new File(s +nameData+".png");
+        Files.createParentDirs(imageFile);
+        Scene histogramScene = new Scene(bc,1280,720);
+        WritableImage histogramImage = histogramScene.snapshot(null);
+        ImageIO.write(SwingFXUtils.fromFXImage(histogramImage,null),"png", imageFile);
         histogramStage.setScene(histogramScene);
         histogramStage.show();
     }
@@ -138,23 +165,29 @@ public class Controller {
     @FXML
     public void drawGroupedHistogram()
     {
-        Stage histogramStage = new Stage();
-        histogramStage.setTitle("Histogram");
-        Charts chart = new Charts(calcs,analyzedData);
-        BarChart<String,Number> bc = chart.drawGroupedChart(choiceColumn.getValue());
-        WritableImage histogramImage = bc.snapshot(new SnapshotParameters(),null);
         try{
-            File file = new File("GroupedChart.png");
-            Scene histogramScene = new Scene(bc);
-            ImageIO.write( SwingFXUtils)
-        }catch (){
-
+            if (analyzedData == null) {
+                throw new RuntimeException("Nie wczytano pliku z danymi!");
+            }
+            Stage histogramStage = new Stage();
+            BarChart<String,Number> bc = analyzedData.drawGroupedChart(choiceColumn.getValue());
+            drawBase(bc, histogramStage, "images_chart\\groupedChart_");
+        } catch (IOException e){
+            alertHandling(e.getMessage());
         }
-
-
-        histogramStage.setScene(histogramScene);
-        histogramStage.show();
     }
 
+    @FXML
+    public void alertHandling(String alertInfo) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning Dialog");
+        alert.setHeaderText("Look, a Warning Dialog");
+        alert.setContentText(alertInfo);
+        alert.showAndWait();
+    }
 
+    @FXML
+    public void quitApp() {
+        Platform.exit();
+    }
 }

@@ -4,43 +4,42 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="iad.Controller">
-  <children>
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="iad.Controller">
     <MenuBar VBox.vgrow="NEVER">
-      <menus>
         <Menu mnemonicParsing="false" text="Plik">
-          <items>
-            <MenuItem fx:id="fileOpenMenuButton" mnemonicParsing="false" onAction="#openFile" text="Wczytaj dane" />
-            <MenuItem fx:id="fileSaveMenuButton" mnemonicParsing="false" onAction="#saveDataToFile" text="Zapisz dane" />
-            <MenuItem mnemonicParsing="false" text="Quit" />
-          </items>
+            <MenuItem mnemonicParsing="false" onAction="#openFile" text="Wczytaj dane"/>
+            <MenuItem mnemonicParsing="false" onAction="#saveDataToFile"
+                      text="Zapisz dane"/>
+            <MenuItem mnemonicParsing="false" onAction="#quitApp" text="Zamknij"/>
         </Menu>
-      </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-         <children>
-            <Label layoutX="22.0" layoutY="19.0" text="Alpha" />
-            <ChoiceBox fx:id="choiceColumn" disable="true" layoutX="72.0" layoutY="49.0" prefWidth="150.0">
-               <cursor>
-                  <Cursor fx:constant="DEFAULT" />
-               </cursor></ChoiceBox>
-            <TextField fx:id="alphaValue" layoutX="73.0" layoutY="15.0" promptText="0.01" />
-            <Label layoutX="14.0" layoutY="53.0" text="Kolumna" />
-            <Button fx:id="analyseDataButton" layoutX="69.0" layoutY="201.0" mnemonicParsing="false" onAction="#analyseData" prefHeight="25.0" prefWidth="157.0" text="Analizuj dane" />
-            <TextArea fx:id="reportArea" layoutX="288.0" layoutY="31.0" prefHeight="281.0" prefWidth="325.0" wrapText="true" />
-            <Label layoutX="288.0" layoutY="6.0" prefHeight="17.0" prefWidth="76.0" text="Wynik analizy:" />
-            <Label layoutX="15.0" layoutY="117.0" text="Klasa C1" />
-            <Label layoutX="80.0" layoutY="87.0" text="Testowanie hipotez" />
-            <ChoiceBox fx:id="choiceC1" disable="true" layoutX="73.0" layoutY="113.0" prefWidth="150.0" />
-            <Label layoutX="15.0" layoutY="149.0" text="Klasa C2" />
-            <Button fx:id="histogramButton" alignment="TOP_LEFT" layoutX="112.0" layoutY="241.0" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#drawHistogram" text="Histogram">
-               <cursor>
-                  <Cursor fx:constant="DEFAULT" />
-               </cursor>
-            </Button>
-            <ChoiceBox fx:id="choiceC2" disable="true" layoutX="73.0" layoutY="145.0" prefWidth="150.0" />
-            <Button fx:id="groupDataButton" layoutX="69.0" layoutY="280.0" mnemonicParsing="false" onAction="#drawGroupedHistogram" text="Histogram z grupowaniem" />
-         </children>
+    <AnchorPane VBox.vgrow="ALWAYS">
+        <Label layoutX="22.0" layoutY="19.0" text="Alpha"/>
+        <ChoiceBox fx:id="choiceColumn" disable="true" layoutX="72.0" layoutY="49.0" prefWidth="150.0">
+            <cursor>
+                <Cursor fx:constant="DEFAULT"/>
+            </cursor>
+        </ChoiceBox>
+        <TextField fx:id="alphaValue" layoutX="73.0" layoutY="15.0" promptText="0.01"/>
+        <Label layoutX="14.0" layoutY="53.0" text="Kolumna"/>
+        <Button layoutX="69.0" layoutY="201.0" mnemonicParsing="false"
+                onAction="#analyseData" prefHeight="25.0" prefWidth="157.0" text="Analizuj dane"/>
+        <TextArea fx:id="reportArea" layoutX="288.0" layoutY="31.0" prefHeight="281.0" prefWidth="325.0"
+                  wrapText="true"/>
+        <Label layoutX="288.0" layoutY="6.0" prefHeight="17.0" prefWidth="76.0" text="Wynik analizy:"/>
+        <Label layoutX="15.0" layoutY="117.0" text="Klasa C1"/>
+        <Label layoutX="80.0" layoutY="87.0" text="Testowanie hipotez"/>
+        <ChoiceBox fx:id="choiceC1" disable="true" layoutX="73.0" layoutY="113.0" prefWidth="150.0"/>
+        <Label layoutX="15.0" layoutY="149.0" text="Klasa C2"/>
+        <Button  alignment="TOP_LEFT" layoutX="112.0" layoutY="241.0" mnemonicParsing="false"
+                nodeOrientation="LEFT_TO_RIGHT" onAction="#drawHistogram" text="Histogram">
+            <cursor>
+                <Cursor fx:constant="DEFAULT"/>
+            </cursor>
+        </Button>
+        <ChoiceBox fx:id="choiceC2" disable="true" layoutX="73.0" layoutY="145.0" prefWidth="150.0"/>
+        <Button layoutX="69.0" layoutY="280.0" mnemonicParsing="false"
+                onAction="#drawGroupedHistogram" text="Histogram z grupowaniem"/>
     </AnchorPane>
-  </children>
 </VBox>

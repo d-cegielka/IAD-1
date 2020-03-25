@@ -1,40 +1,20 @@
 package iad;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import org.apache.commons.math3.special.Erf;
 
-
-public class Calculations {
-    private TreeSet<String> classType;
-    private HashMap<String,ArrayList<ArrayList<Double>>> data;
-
-    public Calculations(HashMap<String,ArrayList<ArrayList<Double>>> data, TreeSet<String> classTypes) {
-        this.classType = classTypes;
-        this.data = data;
-        /*ArrayList<ArrayList<Double>> temp0 = this.data.get("Iris-setosa");
-        ArrayList<ArrayList<Double>> temp1 = this.data.get("Iris-virginica");
-        System.out.println(hypothesisTesting(temp0.get(1),temp1.get(1),0.05));*/
-        /*for(String obj : classTypes)
-        {
-            ArrayList<ArrayList<Double>> temp = this.data.get(obj);
-            //temp.get(0);
-            //String temp2 = this.data.get(obj);
-            ArrayList<Double> temp2 = temp.get(0);
-//            System.out.println(quartile(2,temp2));
-            //System.out.println(round(kurtosis(temp2),4));
-            //System.out.println(dataNormalization(temp2));
-            System.out.println();
-
-        }*/
-
+public class Calculations extends Data{
+    public Calculations(File file, String separator) throws IOException {
+        super(file, separator);
     }
 
     public StringBuilder analyseData(double alpha, int col, String classC1, String classC2)
     {
         StringBuilder report = new StringBuilder();
         report.append("Analizowa kolumna danych: ").append(col).append(System.lineSeparator()).append(System.lineSeparator());
-        for(String obj : classType)
+        for(String obj : classTypes)
         {
             ArrayList<ArrayList<Double>> classData = data.get(obj);
             ArrayList<Double> columnData = classData.get(col);
@@ -66,7 +46,6 @@ public class Calculations {
 
             report.append(System.lineSeparator());
         }
-        ArrayList<String> listClassType = new ArrayList<String>(classType);
         ArrayList<ArrayList<Double>> hiptestData1 = this.data.get(classC1);
         ArrayList<ArrayList<Double>> hiptestData2 = this.data.get(classC2);
         report.append(hypothesisTesting(hiptestData1.get(col),hiptestData2.get(col),alpha));
@@ -77,10 +56,13 @@ public class Calculations {
     private double arithmeticAverage(ArrayList<Double> inputData){
         double sum = 0;
         double average;
-        if(inputData.isEmpty())
+        if(inputData.isEmpty()) {
             return sum;
-        for (double num : inputData)
+        }
+
+        for (double num : inputData){
             sum += num;
+        }
 
         average = sum / inputData.size();
         return average;
@@ -96,16 +78,9 @@ public class Calculations {
         } else {
             return (inputData.get(quotient) + inputData.get(quotient + 1)) * 0.5;
         }
-
-        /*double base = inputData.size() * (quartileIndex * 0.25);
-        double baseround = Math.floor(base);
-        int position = (int) baseround;
-        //return inputData.get(position);
-        //return inputData.get((int) Math.round((inputData.size() * (quartileIndex * 0.25))));*/
-       //return Quantiles.quartiles().index(quartileIndex).compute(inputData);
     }
 
-    //moment centraly
+    //moment centralny
     private double centralMoment(int power, ArrayList<Double> inputData) {
         double average = arithmeticAverage(inputData);
         double sum = 0;
@@ -133,7 +108,7 @@ public class Calculations {
 
     /* współczynnik kurtozy */
     private double kurtosis(ArrayList<Double> inputData) {
-        return centralMoment(4,inputData) / Math.pow(standardDeviation(inputData),4);
+        return (centralMoment(4, inputData) / Math.pow(standardDeviation(inputData), 4)) - 3;
     }
 
     protected SortedMap<Double, Long> counterOfDuplicate(ArrayList<Double> inputData) {
@@ -205,6 +180,4 @@ public class Calculations {
 
         return result;
     }
-
-
 }

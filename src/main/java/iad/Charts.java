@@ -5,30 +5,27 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Charts {
-    private Calculations calc;
-    private Data data;
-    public Charts(Calculations calc, Data data) {
-        this.calc = calc;
-        this.data = data;
+public class Charts extends Calculations{
+    public Charts(File file, String separator) throws IOException {
+        super(file, separator);
     }
 
     public BarChart<String,Number> drawChart(int col) {
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
-        final BarChart<String,Number> bc =
-                new BarChart<String,Number>(xAxis,yAxis);
-        bc.setTitle("Histogram");
+        final BarChart<String,Number> bc = new BarChart<>(xAxis, yAxis);
         xAxis.setLabel("Wartość");
         yAxis.setLabel("Ilość");
-        for (String obj : data.getClassTypes()) {
-            ArrayList<ArrayList<Double>> classData = data.getData().get(obj);
+        for (String obj : getClassTypes()) {
+            ArrayList<ArrayList<Double>> classData = data.get(obj);
             ArrayList<Double> columnData = classData.get(col);
-            Map<Double,Long> countedData = calc.counterOfDuplicate(columnData);
+            Map<Double,Long> countedData = counterOfDuplicate(columnData);
             bc.getData().add(createDataSeries(countedData, obj));
         }
 
@@ -38,23 +35,21 @@ public class Charts {
     public BarChart<String,Number> drawGroupedChart(int col) {
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
-        final BarChart<String,Number> bc =
-                new BarChart<String,Number>(xAxis,yAxis);
-        bc.setTitle("Histogram");
+        final BarChart<String,Number> bc = new BarChart<>(xAxis, yAxis);
         xAxis.setLabel("Wartość");
         yAxis.setLabel("Ilość");
         TreeMap<Double, Long> groupedDataMap;
-        ArrayList<Double> allDataFromClass = new ArrayList<Double>();
-        for (String obj : data.getClassTypes()) {
-            ArrayList<ArrayList<Double>> classData = data.getData().get(obj);
+        ArrayList<Double> allDataFromClass = new ArrayList<>();
+        for (String obj : classTypes) {
+            ArrayList<ArrayList<Double>> classData = data.get(obj);
             ArrayList<Double> columnData = classData.get(col);
             allDataFromClass.addAll(columnData);
         }
-        groupedDataMap = createRangeMap(calc.counterOfDuplicate(allDataFromClass));
-        for (String obj : data.getClassTypes()) {
-            ArrayList<ArrayList<Double>> classData = data.getData().get(obj);
+        groupedDataMap = createRangeMap(counterOfDuplicate(allDataFromClass));
+        for (String obj : classTypes) {
+            ArrayList<ArrayList<Double>> classData = data.get(obj);
             ArrayList<Double> columnData = classData.get(col);
-            Map<Double,Long> countedData = calc.counterOfDuplicate(columnData);
+            Map<Double,Long> countedData = counterOfDuplicate(columnData);
             groupData(groupedDataMap,countedData);
             bc.getData().add(createDataSeries(groupedDataMap, obj));
         }
@@ -67,23 +62,19 @@ public class Charts {
         for(Map.Entry<Double,Long> value : data.entrySet()) {
             double lowerLimit = groupedData.firstKey();
             for(Map.Entry<Double,Long> valueGroupedData: groupedData.entrySet()) {
-
-                if(lowerLimit <= value.getKey() && valueGroupedData.getKey() >= value.getKey())
-                {
+                if(lowerLimit <= value.getKey() && valueGroupedData.getKey() >= value.getKey()) {
                     //int count = valueGroupedData.getValue() + 1;
                     //count++;
                     groupedData.put(valueGroupedData.getKey(), valueGroupedData.getValue() + 1);
                 }
-
                 lowerLimit = valueGroupedData.getKey();
-
             }
 
         }
     }
 
     private TreeMap<Double,Long> createRangeMap(Map<Double,Long> data) {
-        TreeMap<Double,Long> groupedData = new TreeMap<Double, Long>();
+        TreeMap<Double,Long> groupedData = new TreeMap<>();
         int k = (int) Math.sqrt(data.size());
         double min = (double) data.keySet().toArray()[0];
         double max = (double) data.keySet().toArray()[data.size() - 1];
@@ -91,17 +82,16 @@ public class Charts {
         double lowerLimit = min - (gap / 2);
 
         for (int i = 0; i < k; i++) {
-            groupedData.put(calc.round(lowerLimit,3), 0L);
+            groupedData.put(round(lowerLimit,3), 0L);
             lowerLimit += gap;
         }
         return groupedData;
     }
 
     private XYChart.Series<String,Number> createDataSeries(Map<Double,Long> data, String nameSeries) {
-        XYChart.Series<String,Number> series = new XYChart.Series<String,Number>();
+        XYChart.Series<String,Number> series = new XYChart.Series<>();
         series.setName(nameSeries);
-        for(Map.Entry<Double,Long> obj: data.entrySet())
-        {
+        for(Map.Entry<Double,Long> obj: data.entrySet()) {
             series.getData().add(new XYChart.Data<>(obj.getKey().toString(),obj.getValue()));
         }
         return series;
