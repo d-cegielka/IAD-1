@@ -34,13 +34,18 @@ public class Controller {
     private TextArea reportArea;
 
     @FXML
+    private ChoiceBox<String> choiceDistributionType;
+
+    @FXML
     private ChoiceBox<String> choiceC1;
 
     @FXML
     private ChoiceBox<String> choiceC2;
 
     @FXML
-    private void initialize() { }
+    private void initialize() {
+        choiceDistributionType.getItems().addAll("jednostronny","dwustronny");
+    }
 
     @FXML
     public void openFile(){
@@ -56,7 +61,6 @@ public class Controller {
         CsvParserSettings settings = new CsvParserSettings();
         settings.detectFormatAutomatically();
         CsvParser parser = new CsvParser(settings);
-        //List<String[]> rows = parser.parseAll(inputFile);
         parser.parse(inputFile);
         CsvFormat separatorDetected = parser.getDetectedFormat();
 
@@ -65,14 +69,18 @@ public class Controller {
         } catch (IOException e) {
             alertHandling(e.getMessage());
         }
-        //calcs = new Calculations(analyzedData.getData(), analyzedData.getClassTypes());
 
         //Wybór kolumny do analizy
+        choiceColumn.getItems().clear();
         for (int i = 0; i < analyzedData.getNumberOfAttribute() - 1; i++)
             choiceColumn.getItems().add(i);
 
         choiceColumn.setDisable(false);
         choiceColumn.getSelectionModel().select(0);
+
+        //Wybór domyślnego typu rozkładu
+        choiceDistributionType.getSelectionModel().select(0);
+        choiceDistributionType.setDisable(false);
 
         //Wybór klas do testowania hipotez
         choiceC1.setItems(FXCollections.observableArrayList(analyzedData.getClassTypes()));
@@ -94,7 +102,7 @@ public class Controller {
             report.append("Plik źródłowy: ").append(inputFile.getName()).append(System.lineSeparator());
             report.append("Separator: [").append(analyzedData.getSeparator()).append("]").append(System.lineSeparator());
             report.append("Analizowane klasy: ").append(analyzedData.getClassTypes()).append(System.lineSeparator());
-            report.append(analyzedData.analyseData(Double.parseDouble(alphaValue.getText()), choiceColumn.getValue(), choiceC1.getValue(), choiceC2.getValue()));
+            report.append(analyzedData.analyseData(Double.parseDouble(alphaValue.getText()), choiceDistributionType.getValue(), choiceColumn.getValue(), choiceC1.getValue(), choiceC2.getValue()));
             reportArea.setText(report.toString());
         } catch (RuntimeException e) {
             alertHandling(e.getMessage());

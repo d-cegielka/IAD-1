@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.math3.special.Erf;
+//import org.apache.commons.math3.stat.inference.TTest;
 
 public class Calculations extends Data{
     public Calculations(File file, String separator) throws IOException {
         super(file, separator);
     }
 
-    public StringBuilder analyseData(double alpha, int col, String classC1, String classC2)
+    public StringBuilder analyseData(double alpha, String distributionType, int col, String classC1, String classC2)
     {
         StringBuilder report = new StringBuilder();
         report.append("Analizowa kolumna danych: ").append(col).append(System.lineSeparator()).append(System.lineSeparator());
@@ -18,43 +19,43 @@ public class Calculations extends Data{
         {
             ArrayList<ArrayList<Double>> classData = data.get(obj);
             ArrayList<Double> columnData = classData.get(col);
-
+            int decimalPlaces = 4;
             report.append("Wyniki dla klasy: ").append(obj).append(System.lineSeparator());
             report.append("1. Miary średnie klasyczne i pozycyjne:").append(System.lineSeparator());
-            report.append("Średnia arytmetyczna: ").append(round(arithmeticAverage(columnData),3)).append(System.lineSeparator());
-            report.append("Pierwszy kwartyl: ").append(round(quartile(1,columnData),3)).append(System.lineSeparator());
-            report.append("Mediana: ").append(round(quartile(2,columnData),3)).append(System.lineSeparator());
-            report.append("Trzeci kwartyl: ").append(round(quartile(3,columnData),3)).append(System.lineSeparator());
+            report.append("Średnia arytmetyczna: ").append(round(arithmeticAverage(columnData),decimalPlaces)).append(System.lineSeparator());
+            report.append("Pierwszy kwartyl: ").append(round(quartile(1,columnData),decimalPlaces)).append(System.lineSeparator());
+            report.append("Mediana: ").append(round(quartile(2,columnData),decimalPlaces)).append(System.lineSeparator());
+            report.append("Trzeci kwartyl: ").append(round(quartile(3,columnData),decimalPlaces)).append(System.lineSeparator());
 
             report.append("2. Miary rozproszenia: ").append(System.lineSeparator());
-            report.append("Wariancja: ").append(round(centralMoment(2, columnData),3)).append(System.lineSeparator());
-            report.append("Odchylenie standardowe: ").append(round(standardDeviation(columnData),3)).append(System.lineSeparator());
+            report.append("Wariancja: ").append(round(centralMoment(2, columnData),decimalPlaces)).append(System.lineSeparator());
+            report.append("Odchylenie standardowe: ").append(round(standardDeviation(columnData),decimalPlaces)).append(System.lineSeparator());
 
             report.append("3. Miary asymetrii:").append(System.lineSeparator());
-            report.append("Współczynnik skośności: ").append(round(skewness(columnData),3)).append(System.lineSeparator());
-            report.append("Współczynnik asymetrii: ").append(round(skewnessCoefficient(columnData),3)).append(System.lineSeparator());
+            report.append("Współczynnik asymetrii: ").append(round(skewnessCoefficient(columnData),decimalPlaces)).append(System.lineSeparator());
+            report.append("Współczynnik skośności: ").append(round(skewness(columnData),decimalPlaces)).append(System.lineSeparator());
 
             report.append("4. Miary koncentracji:").append(System.lineSeparator());
-            report.append("Współczynnik koncentracji(kurtoza): ").append(round(kurtosis(columnData),3)).append(System.lineSeparator());
+            report.append("Współczynnik koncentracji(kurtoza): ").append(round(kurtosis(columnData),decimalPlaces)).append(System.lineSeparator());
 
             report.append("5. Normalizacja zmiennej losowej. Dopasowanie rozkładu i analiza danych w jego kontekście:").append(System.lineSeparator());
             report.append("Dane przed normalizacją:").append(System.lineSeparator());
             report.append(columnData).append(System.lineSeparator()).append(System.lineSeparator());
             report.append(counterOfDuplicate(columnData)).append(System.lineSeparator()).append(System.lineSeparator());
             report.append("Dane po normalizacji:").append(System.lineSeparator());
-            report.append(dataNormalization(columnData)).append(System.lineSeparator()).append(System.lineSeparator());
-
+            //report.append(dataNormalization(columnData)).append(System.lineSeparator()).append(System.lineSeparator());
+            report.append(Arrays.toString(dataNormalization(columnData).keySet().toArray())).append(System.lineSeparator()).append(System.lineSeparator());
             report.append(System.lineSeparator());
         }
         ArrayList<ArrayList<Double>> hiptestData1 = this.data.get(classC1);
         ArrayList<ArrayList<Double>> hiptestData2 = this.data.get(classC2);
-        report.append(hypothesisTesting(hiptestData1.get(col),hiptestData2.get(col),alpha));
+        report.append(hypothesisTesting(hiptestData1.get(col),hiptestData2.get(col),alpha,distributionType));
         return report;
     }
 
     //średnia arytmetyczna
     private double arithmeticAverage(ArrayList<Double> inputData){
-        double sum = 0;
+        double sum = 0.0D;
         double average;
         if(inputData.isEmpty()) {
             return sum;
@@ -83,7 +84,7 @@ public class Calculations extends Data{
     //moment centralny
     private double centralMoment(int power, ArrayList<Double> inputData) {
         double average = arithmeticAverage(inputData);
-        double sum = 0;
+        double sum = 0.0D;
         for (double num : inputData){
             double sub = num - average;
             sum += Math.pow(sub, power);
@@ -94,6 +95,17 @@ public class Calculations extends Data{
     //odchylenie standardowe
     private double standardDeviation(ArrayList<Double> inputData) {
         return Math.sqrt(centralMoment(2,inputData));
+    }
+
+    //odchylenie standardowe z próby
+    private double standardDeviationFromSample(ArrayList<Double> inputData) {
+        double average = arithmeticAverage(inputData);
+        double sum = 0.0D;
+        for (double num : inputData){
+            double sub = num - average;
+            sum += Math.pow(sub, 2);
+        }
+        return Math.sqrt(sum/(inputData.size()-1.0D));
     }
 
     //współczynnik skośności(“Klasyczno-pozycyjny” współczynnik skośności (miara absolutna))
@@ -140,37 +152,42 @@ public class Calculations extends Data{
         return Math.round(value * pow) / pow;
     }
 
-    private StringBuilder hypothesisTesting(ArrayList<Double> x1, ArrayList<Double> x2, double alpha)
+    private StringBuilder hypothesisTesting(ArrayList<Double> x1, ArrayList<Double> x2, double alpha, String distributionType)
     {
         StringBuilder result = new StringBuilder();
         double m1 = arithmeticAverage(x1);
         double m2 = arithmeticAverage(x2);
-        double s1 = standardDeviation(x1);
-        double s2 = standardDeviation(x2);
+        double s1 = standardDeviationFromSample(x1);
+        double s2 = standardDeviationFromSample(x2);
 
-        double val1 = Math.pow(s1, 2) / x1.size();
-        double val2 = Math.pow(s2, 2) / x2.size();
+        double val1 = (s1*s1) / x1.size();
+        double val2 = (s2*s2) / x2.size();
 
         double z = (m1 - m2) / Math.sqrt(val1 + val2);
+        int decimalPlaces = 4;
+        result.append("m1 = ").append(round(m1,decimalPlaces)).append(System.lineSeparator());
+        result.append("m2 = ").append(round(m2,decimalPlaces)).append(System.lineSeparator());
+        result.append("s1 = ").append(round(s1,decimalPlaces)).append(System.lineSeparator());
+        result.append("s2 = ").append(round(s2,decimalPlaces)).append(System.lineSeparator());
+        result.append("z = ").append(round(z,decimalPlaces)).append(System.lineSeparator());
 
-        result.append("m1 = ").append(round(m1,4)).append(System.lineSeparator());
-        result.append("m2 = ").append(round(m2,4)).append(System.lineSeparator());
-        result.append("s1 = ").append(round(s1,4)).append(System.lineSeparator());
-        result.append("s2 = ").append(round(s2,4)).append(System.lineSeparator());
-        result.append("z = ").append(round(z,4)).append(System.lineSeparator());
+        double df = (val1 + val2) * (val1 + val2)
+                / (((val1*val1) / (x1.size() - 1.0D))
+                + ((val2*val2) / (x2.size() - 1.0D)));
 
-        double df = Math.pow((val1 + val2), 2)
-                / ((Math.pow(val1, 2) / (x1.size() - 1))
-                + (Math.pow(val2, 2) / (x2.size() - 1)));
-
-        double p = 1 - Math.abs(Erf.erf(-z / Math.sqrt(2)));
-       /* TTest test = new TTest();
+        double p = (1 - Math.abs(Erf.erf(-z / Math.sqrt(2))));
+        if(distributionType.equals("jednostronny")) {
+            p /=2;
+        }
+        /*TTest test = new TTest();
         double[] x1arr = x1.stream().mapToDouble(Double::doubleValue).toArray();
         double[] x2arr = x2.stream().mapToDouble(Double::doubleValue).toArray();
-        double palt = test.tTest(x1arr,x2arr);*/
+        double p = test.tTest(x1arr,x2arr);
+        boolean rejectH = test.tTest(x1arr,x2arr,alpha);*/
 
-        result.append("Rozkład t-Studenta = ").append(round(df,4)).append(System.lineSeparator());
-        result.append("p-value = ").append(p).append(System.lineSeparator());
+        result.append("Rozkład t-Studenta = ").append(round(df,decimalPlaces)).append(System.lineSeparator());
+        result.append("p-value = ").append(round(p,6)).append(System.lineSeparator());
+        //result.append("p-value rejec = ").append(rejectH).append(System.lineSeparator());
         if (p <= alpha)
             result.append("Odrzucamy hipotezę zerową H0 dla rozkładu normalnego. (p-value <= ")
                     .append(alpha).append( ")").append(System.lineSeparator());
