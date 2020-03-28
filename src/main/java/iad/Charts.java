@@ -47,11 +47,12 @@ public class Charts extends Calculations{
         }
         groupedDataMap = createRangeMap(counterOfDuplicate(allDataFromClass));
         for (String obj : classTypes) {
+            TreeMap<Double, Long> groupedDataMapForClass = new TreeMap<>(groupedDataMap);
             ArrayList<ArrayList<Double>> classData = data.get(obj);
             ArrayList<Double> columnData = classData.get(col);
             Map<Double,Long> countedData = counterOfDuplicate(columnData);
-            groupData(groupedDataMap,countedData);
-            bc.getData().add(createDataSeries(groupedDataMap, obj));
+            groupData(groupedDataMapForClass,countedData);
+            bc.getData().add(createDataSeries(groupedDataMapForClass, obj));
         }
         return bc;
     }
@@ -63,13 +64,10 @@ public class Charts extends Calculations{
             double lowerLimit = groupedData.firstKey();
             for(Map.Entry<Double,Long> valueGroupedData: groupedData.entrySet()) {
                 if(lowerLimit <= value.getKey() && valueGroupedData.getKey() >= value.getKey()) {
-                    //int count = valueGroupedData.getValue() + 1;
-                    //count++;
-                    groupedData.put(valueGroupedData.getKey(), valueGroupedData.getValue() + 1);
+                    groupedData.put(valueGroupedData.getKey(), valueGroupedData.getValue() + value.getValue());
                 }
                 lowerLimit = valueGroupedData.getKey();
             }
-
         }
     }
 
